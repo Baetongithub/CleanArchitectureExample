@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.create_notes.CreateOrEditNoteFragment">
+    tools:context=".presentation.ui.fragment.create_edit.CreateOrEditNoteFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -41,6 +41,22 @@
         android:backgroundTint="@color/white"
         android:gravity="center"
         android:hint="@string/create_note"
+        android:inputType="textCapSentences"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_description_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/et_create_note"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="1dp"
+        android:backgroundTint="@color/white"
+        android:gravity="center"
+        android:hint="@string/create_note"
         android:imeOptions="actionDone"
         android:inputType="textCapSentences"
         android:textColor="@color/black"
@@ -51,7 +67,7 @@
         android:id="@+id/btn_save_note"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/et_create_note"
+        android:layout_below="@id/et_description_note"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:backgroundTint="#FF4308"
@@ -59,10 +75,12 @@
         android:textAllCaps="false"
         app:cornerRadius="20dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/btn_save_note"
-        android:text="@string/hello_blank_fragment" />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </RelativeLayout>

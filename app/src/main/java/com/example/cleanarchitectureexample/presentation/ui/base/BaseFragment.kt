@@ -1,4 +1,4 @@
-package com.example.cleanarchitectureexample.presentation.base
+package com.example.cleanarchitectureexample.presentation.ui.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 abstract class BaseFragment<VB : ViewBinding>(
     private val viewBinding: (LayoutInflater, ViewGroup?, Boolean) -> VB

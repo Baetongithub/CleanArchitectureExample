@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/listOfNotesFragment"
-        android:name="com.example.cleanarchitectureexample.presentation.list_of_notes.ListOfNotesFragment"
+        android:name="com.example.cleanarchitectureexample.presentation.ui.fragment.notes.NotesFragment"
         android:label="Notes"
-        tools:layout="@layout/fragment_list_of_notes">
+        tools:layout="@layout/fragment_notes">
         <action
             android:id="@+id/to_createNoteFragment"
             app:destination="@id/createNoteFragment"
@@ -21,8 +21,8 @@
 
     <fragment
         android:id="@+id/createNoteFragment"
-        android:name="com.example.cleanarchitectureexample.presentation.create_notes.CreateOrEditNoteFragment"
+        android:name="com.example.cleanarchitectureexample.presentation.ui.fragment.create_edit.CreateOrEditNoteFragment"
         android:label="Create note"
-        tools:layout="@layout/fragment_create_or_edit_note" />
+        tools:layout="@layout/fragment_create_edit_note" />
 
 </navigation>

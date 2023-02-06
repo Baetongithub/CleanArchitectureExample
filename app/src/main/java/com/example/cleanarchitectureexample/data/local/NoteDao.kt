@@ -6,7 +6,7 @@ import com.example.cleanarchitectureexample.data.model.NoteEntity
 @Dao
 interface NoteDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun createNote(noteEntity: NoteEntity)
 
     @Update
