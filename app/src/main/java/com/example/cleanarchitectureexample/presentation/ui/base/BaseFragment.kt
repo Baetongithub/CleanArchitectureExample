@@ -5,11 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.cleanarchitectureexample.presentation.ui.UIState
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-abstract class BaseFragment<VB : ViewBinding>(
+open class BaseFragment<VB : ViewBinding>(
     private val viewBinding: (LayoutInflater, ViewGroup?, Boolean) -> VB
 ) : Fragment() {
 
@@ -30,16 +35,44 @@ abstract class BaseFragment<VB : ViewBinding>(
         return vb.root
     }
 
-    abstract fun initViewModel()
+    protected open fun <T> StateFlow<UIState<T>>.collectState(
+        onLoading: () -> Unit,
+        onError: (message: String) -> Unit,
+        onSuccess: (data: T) -> Unit
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                this@collectState.collect {
+                    when (it) {
+                        is UIState.Empty -> {}
+                        is UIState.Error -> {
+                            onError(it.message)
+                        }
+                        is UIState.Loading -> {
+                            onLoading()
+                        }
+                        is UIState.Success -> {
+                            onSuccess(it.data)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    abstract fun initViews()
+    protected open fun initViewModel() {}
+
+    protected open fun initViews() {}
 
     fun navigateUp() {
         findNavController().navigateUp()
     }
 
-    fun navigate(resID: Int) {
-        findNavController().navigate(resID)
+    fun navigate(resID: Int, bundle: Bundle? = null) {
+        if (bundle == null)
+            findNavController().navigate(resID)
+        else
+            findNavController().navigate(resID, bundle)
     }
 
     override fun onDestroyView() {

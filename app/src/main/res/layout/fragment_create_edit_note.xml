@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.ui.fragment.create_edit.CreateOrEditNoteFragment">
+    tools:context=".presentation.ui.fragment.create_edit.CreateEditNoteFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -40,7 +40,7 @@
         android:layout_marginTop="10dp"
         android:backgroundTint="@color/white"
         android:gravity="center"
-        android:hint="@string/create_note"
+        android:hint="@string/title_note"
         android:inputType="textCapSentences"
         android:textColor="@color/black"
         android:textSize="20sp"
@@ -56,7 +56,7 @@
         android:layout_marginTop="1dp"
         android:backgroundTint="@color/white"
         android:gravity="center"
-        android:hint="@string/create_note"
+        android:hint="@string/description"
         android:imeOptions="actionDone"
         android:inputType="textCapSentences"
         android:textColor="@color/black"

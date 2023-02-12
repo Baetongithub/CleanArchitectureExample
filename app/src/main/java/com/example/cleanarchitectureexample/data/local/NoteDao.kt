@@ -6,15 +6,15 @@ import com.example.cleanarchitectureexample.data.model.NoteEntity
 @Dao
 interface NoteDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun createNote(noteEntity: NoteEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun createNote(noteEntity: NoteEntity)
 
     @Update
-    fun editNote(noteEntity: NoteEntity)
+    suspend fun editNote(noteEntity: NoteEntity)
 
     @Delete
-    fun deleteNote(noteEntity: NoteEntity)
+    suspend fun deleteNote(noteEntity: NoteEntity)
 
     @Query("SELECT * FROM notes")
-    fun getNotes(): List<NoteEntity>
+    suspend fun getNotes(): List<NoteEntity>
 }

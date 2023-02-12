@@ -1,44 +1,35 @@
 package com.example.cleanarchitectureexample.presentation.ui.fragment.notes
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.cleanarchitectureexample.domain.model.Note
 import com.example.cleanarchitectureexample.domain.usecases.DeleteNoteUseCase
 import com.example.cleanarchitectureexample.domain.usecases.GetNotesUseCase
-import com.example.cleanarchitectureexample.domain.utils.Resource
 import com.example.cleanarchitectureexample.presentation.ui.UIState
+import com.example.cleanarchitectureexample.presentation.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
-    private val getNotesUseCase: GetNotesUseCase
-) : ViewModel() {
+    private val getNotesUseCase: GetNotesUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase
+) : BaseViewModel() {
 
     val loading = MutableLiveData<Boolean>()
 
     private val _getNotesState = MutableStateFlow<UIState<List<Note>>>(UIState.Empty())
     val getNotesState = _getNotesState.asStateFlow()
 
+    private val _deleteNoteUseCase = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val deleteNotesState = _deleteNoteUseCase.asStateFlow()
+
     fun getNotes() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getNotesUseCase.getNotes().collect {
-                when (it) {
-                    is Resource.Error -> {
-                        _getNotesState.value = UIState.Error(it.message!!)
-                    }
-                    is Resource.Loading -> _getNotesState.value = UIState.Loading()
-                    is Resource.Success -> {
-                        if (it.data != null)
-                            _getNotesState.value = UIState.Success(it.data)
-                    }
-                }
-            }
-        }
+        getNotesUseCase.getNotes().collectFlow(_getNotesState)
+    }
+
+    fun delete(note: Note) {
+        deleteNoteUseCase.deleteNote(note).collectFlow(_deleteNoteUseCase)
     }
 }

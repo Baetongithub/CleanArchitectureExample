@@ -1,6 +1,5 @@
 package com.example.cleanarchitectureexample.presentation.ui.fragment.notes
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.cleanarchitectureexample.databinding.ItemNotesBinding
 import com.example.cleanarchitectureexample.domain.model.Note
 
-class NotesAdapter : ListAdapter<Note, NotesAdapter.NotesViewHolder>(NoteDiffUtil()) {
+class NotesAdapter(
+    private val onLongClick: (note: Note) -> Unit
+) : ListAdapter<Note, NotesAdapter.NotesViewHolder>(NoteDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
         return NotesViewHolder(
@@ -23,6 +24,10 @@ class NotesAdapter : ListAdapter<Note, NotesAdapter.NotesViewHolder>(NoteDiffUti
 
     override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
         holder.bind(getItem(position))
+        holder.itemView.setOnLongClickListener {
+            onLongClick(getItem(position))
+            return@setOnLongClickListener true
+        }
     }
 
     class NotesViewHolder(private val itemBinding: ItemNotesBinding) :
@@ -30,19 +35,18 @@ class NotesAdapter : ListAdapter<Note, NotesAdapter.NotesViewHolder>(NoteDiffUti
         fun bind(note: Note) {
             itemBinding.tvNoteTitle.text = note.title
             itemBinding.tvNoteDesc.text = note.desc
-            itemBinding.tvNoteTime.text = note.createdAt.toString()
+            itemBinding.tvNoteTime.text = note.createdAt
         }
     }
 
     private class NoteDiffUtil : DiffUtil.ItemCallback<Note>() {
+
         override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
             return oldItem.id == newItem.id
         }
 
-        @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
             return oldItem == newItem
         }
-
     }
 }

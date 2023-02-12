@@ -1,60 +1,65 @@
 package com.example.cleanarchitectureexample.presentation.ui.fragment.notes
 
-import com.example.cleanarchitectureexample.utils.Toast
+import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.cleanarchitectureexample.R
 import com.example.cleanarchitectureexample.databinding.FragmentNotesBinding
-import com.example.cleanarchitectureexample.presentation.ui.UIState
+import com.example.cleanarchitectureexample.databinding.ItemAlertDialogBinding
+import com.example.cleanarchitectureexample.domain.model.Note
 import com.example.cleanarchitectureexample.presentation.ui.base.BaseFragment
-import com.example.cleanarchitectureexample.utils.KeyboardHelper
+import com.example.cleanarchitectureexample.utils.Constants
+import com.example.cleanarchitectureexample.utils.Toast
 import com.example.cleanarchitectureexample.utils.extensions.visible
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NotesFragment :
     BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::inflate) {
 
     private val viewModel: NotesViewModel by viewModels()
-
-    private val notesAdapter = NotesAdapter()
+    private val notesAdapter by lazy { NotesAdapter(this::onLongClickDelete) }
 
     override fun initViews() {
         vb.fabCreateNote.setOnClickListener { navigate(R.id.to_createNoteFragment) }
-        setUpRV()
         viewModel.getNotes()
+        setUpRV()
     }
 
     override fun initViewModel() {
 
         viewModel.loading.observe(viewLifecycleOwner) { vb.progressBar.visible = it }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.getNotesState.collect {
-                    when (it) {
-                        is UIState.Empty -> {}
-                        is UIState.Error -> {
-                            Toast.show(context, it.message)
-                        }
-                        is UIState.Loading -> {
-                            viewModel.loading.postValue(true)
-                        }
-                        is UIState.Success -> {
-                            viewModel.loading.postValue(false)
-                            notesAdapter.submitList(it.data)
-                            Toast.show(context, it.data.toString())
-                        }
-                    }
-                }
+        observeGetNotes()
+        observeDeleteNote()
+    }
+
+    private fun observeGetNotes() {
+        viewModel.getNotesState.collectState(
+            onError = {
+                viewModel.loading.postValue(false)
+                Toast.show(context, it)
+            },
+            onLoading = { viewModel.loading.postValue(true) },
+            onSuccess = {
+                viewModel.loading.postValue(false)
+                notesAdapter.submitList(it)
             }
-        }
+        )
+    }
+
+    private fun observeDeleteNote() {
+        viewModel.deleteNotesState.collectState(
+            onError = { viewModel.loading.postValue(false) },
+            onLoading = { viewModel.loading.postValue(false) },
+            onSuccess = {
+                Toast.show(context, "$it deleted")
+                viewModel.loading.postValue(false)
+            }
+        )
     }
 
     private fun setUpRV() {
@@ -66,10 +71,41 @@ class NotesFragment :
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     if (dy > 0) {
-                        KeyboardHelper.hideKeyboard(activity)
+                        vb.fabCreateNote.hide()
+                    } else {
+                        vb.fabCreateNote.show()
                     }
                 }
             })
         }
+    }
+
+    private fun onLongClickDelete(note: Note) {
+
+        val dialogVb = activity?.layoutInflater?.let { ItemAlertDialogBinding.inflate(it) }
+
+        val dialog = context?.let {
+            AlertDialog.Builder(it)
+                .setView(dialogVb?.root)
+                .setNegativeButton(getString(R.string.no), null)
+                .setNeutralButton(getString(R.string.edit)) { _, _ ->
+                    openEditNote(note)
+                }
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                    viewModel.delete(note)
+                }
+        }
+
+        if (dialog != null) {
+            dialog.create()
+            dialog.show()
+        }
+    }
+
+    private fun openEditNote(note: Note) {
+        val bundle = Bundle()
+        bundle.putString(Constants.EDIT_TYPE, Constants.EDIT)
+        bundle.putSerializable(Constants.EDIT_TAG, note)
+        navigate(R.id.to_createNoteFragment, bundle)
     }
 }
