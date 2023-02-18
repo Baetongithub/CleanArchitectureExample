@@ -21,7 +21,7 @@ class NotesFragment :
     BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::inflate) {
 
     private val viewModel: NotesViewModel by viewModels()
-    private val notesAdapter by lazy { NotesAdapter(this::onLongClickDelete) }
+    private val notesAdapter by lazy { NotesAdapter(this::onLongClickItem) }
 
     override fun initViews() {
         vb.fabCreateNote.setOnClickListener { navigate(R.id.to_createNoteFragment) }
@@ -30,7 +30,6 @@ class NotesFragment :
     }
 
     override fun initViewModel() {
-
         viewModel.loading.observe(viewLifecycleOwner) { vb.progressBar.visible = it }
 
         observeGetNotes()
@@ -44,9 +43,9 @@ class NotesFragment :
                 Toast.show(context, it)
             },
             onLoading = { viewModel.loading.postValue(true) },
-            onSuccess = {
+            onSuccess = { data ->
                 viewModel.loading.postValue(false)
-                notesAdapter.submitList(it)
+                notesAdapter.submitList(data)
             }
         )
     }
@@ -64,7 +63,7 @@ class NotesFragment :
 
     private fun setUpRV() {
         vb.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
             adapter = notesAdapter
 
             addOnScrollListener(object : OnScrollListener() {
@@ -77,11 +76,17 @@ class NotesFragment :
                     }
                 }
             })
+
+            // auto scroll to top position
+            notesAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(positionStart, 0)
+                }
+            })
         }
     }
 
-    private fun onLongClickDelete(note: Note) {
-
+    private fun onLongClickItem(note: Note) {
         val dialogVb = activity?.layoutInflater?.let { ItemAlertDialogBinding.inflate(it) }
 
         val dialog = context?.let {

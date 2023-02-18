@@ -41,10 +41,10 @@ class CreateEditNoteFragment :
                 return@OnEditorActionListener false
             })
 
-            //btn save
+            //edit mode
             if (noteType.equals(Constants.EDIT)) {
                 if (note != null) {
-                    etCreateNote.setText(note.title)
+                    etCreateNote.setText(note.title.replace(" (edited)", ""))
                     etDescriptionNote.setText(note.desc)
                     btnSaveNote.text = getString(R.string.edit)
                 }
@@ -52,6 +52,7 @@ class CreateEditNoteFragment :
                 btnSaveNote.text = getString(R.string.save)
             }
 
+            //btn save
             btnSaveNote.setOnClickListener {
                 editCreateNote(noteType, note)
             }
@@ -59,7 +60,6 @@ class CreateEditNoteFragment :
     }
 
     override fun initViewModel() {
-
         viewModel.loading.observe(viewLifecycleOwner) { vb.progressBar.visible = it }
 
         observeCreateNote()
@@ -72,7 +72,7 @@ class CreateEditNoteFragment :
                 viewModel.editNote(
                     Note(
                         id = note.id,
-                        title = vb.etCreateNote.text.toString() + " (edited)",
+                        title = vb.etCreateNote.text.toString() +" (edited)",
                         desc = vb.etDescriptionNote.text.toString(),
                         createdAt = Time.currentTime()
                     )

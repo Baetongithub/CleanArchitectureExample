@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-open class BaseViewModel : ViewModel() {
+abstract class BaseViewModel : ViewModel() {
 
     protected fun <T> Flow<Resource<T>>.collectFlow(_state: MutableStateFlow<UIState<T>>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -21,7 +21,7 @@ open class BaseViewModel : ViewModel() {
                     is Resource.Loading -> _state.value = UIState.Loading()
                     is Resource.Success -> {
                         if (it.data != null)
-                            _state.value = UIState.Success(it.data)
+                            _state.value = UIState.Success(it.data!!)
                     }
                 }
             }

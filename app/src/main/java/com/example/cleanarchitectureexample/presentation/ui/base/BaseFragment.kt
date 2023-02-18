@@ -68,11 +68,11 @@ open class BaseFragment<VB : ViewBinding>(
         findNavController().navigateUp()
     }
 
-    fun navigate(resID: Int, bundle: Bundle? = null) {
+    fun navigate(resId: Int, bundle: Bundle? = null) {
         if (bundle == null)
-            findNavController().navigate(resID)
+            findNavController().navigate(resId)
         else
-            findNavController().navigate(resID, bundle)
+            findNavController().navigate(resId, bundle)
     }
 
     override fun onDestroyView() {
